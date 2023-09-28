@@ -17,6 +17,7 @@ use CyrToLat\BackgroundProcesses\PostConversionProcess;
 use CyrToLat\BackgroundProcesses\TermConversionProcess;
 use CyrToLat\Settings\Converter as SettingsConverter;
 use CyrToLat\Settings\SystemInfo as SettingsSystemInfo;
+use CyrToLat\Settings\ImportExport as SettingsImportExport;
 use CyrToLat\Settings\Tables as SettingsTables;
 use Polylang;
 use SitePress;
@@ -186,6 +187,7 @@ class Main {
 					SettingsTables::class,
 					SettingsConverter::class,
 					SettingsSystemInfo::class,
+					SettingsImportExport::class,
 				],
 			]
 		);
