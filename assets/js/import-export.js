@@ -1,98 +1,138 @@
 /* global Cyr2LatImportExportObject */
 
 ( function( $ ) {
-	const $errorWrapper = $( '#ctl-error' );
-	const $successWrapper = $( '#ctl-success' );
-	let msgTimer;
+	const ImportExport = {
+		/**
+		 * Selectors.
+		 */
+		selectors: {
+			$exportForm: $( '#ctl-export' ),
+			$importForm: $( '#ctl-import' ),
+			$errorWrapper: $( '#ctl-error' ),
+			$successWrapper: $( '#ctl-success' ),
+			$body: $( 'body' )
+		},
 
-	// Export.
-	$( '#ctl-export' ).on( 'submit', function( event ) {
-		event.preventDefault();
+		/**
+		 * Initialize.
+		 */
+		init: function() {
+			ImportExport.exportAction();
+			ImportExport.importAction();
+		},
 
-		const $form = $( this );
+		/**
+		 * Export action.
+		 */
+		exportAction: function() {
+			ImportExport.selectors.$exportForm.on( 'submit', function( event ) {
+				event.preventDefault();
 
-		const formData = new FormData( this );
+				const formData = new FormData( this );
 
-		$.ajax( {
-			type: 'POST',
-			url: Cyr2LatImportExportObject.ajaxUrl,
-			data: formData,
-			processData: false,
-			contentType: false,
-			success: function( response ) {
-				if ( response.success && response.data.settings ) {
-					const blob = new Blob( [ response.data.settings ], { type: 'application/json' } );
-					const url = URL.createObjectURL( blob );
+				$.ajax( {
+					type: 'POST',
+					url: Cyr2LatImportExportObject.ajaxUrl,
+					data: formData,
+					processData: false,
+					contentType: false,
+					success: function( response ) {
+						if ( response.success && response.data.settings ) {
+							const blob = new Blob( [ response.data.settings ], { type: 'application/json' } );
+							const url = URL.createObjectURL( blob );
 
-					let currentDateTime = new Date().toISOString();
-					currentDateTime = currentDateTime.replace( /:/g, '-' ).replace( 'T', '_' ).slice( 0, -5 );
+							let currentDateTime = new Date().toISOString();
+							currentDateTime = currentDateTime.replace( /:/g, '-' ).replace( 'T', '_' ).slice( 0, -5 );
 
-					const $downloadLink = $( '<a>' )
-						.attr( 'href', url )
-						.attr( 'download', 'Settings_' + currentDateTime + '.json' )
-						.css( 'display', 'none' );
+							const $downloadLink = $( '<a>' )
+								.attr( 'href', url )
+								.attr( 'download', 'Settings_' + currentDateTime + '.json' )
+								.css( 'display', 'none' );
 
-					$( 'body' ).append( $downloadLink );
+							ImportExport.selectors.$body.append( $downloadLink );
 
-					$downloadLink[ 0 ].click();
-					$downloadLink.remove();
+							$downloadLink[ 0 ].click();
+							$downloadLink.remove();
 
-					URL.revokeObjectURL( url );
+							URL.revokeObjectURL( url );
 
-					showSuccess( response.data.message );
-				} else {
-					showError( response.data );
-				}
-			},
-			error: function( error ) {
-				console.error( 'AJAX request failed:', error );
-			}
-		} );
-	} );
+							ImportExport.showSuccess( response.data.message );
+						} else {
+							ImportExport.showError( response.data );
+						}
+					},
+					error: function( error ) {
+						console.error( 'AJAX request failed:', error );
+					}
+				} );
+			} );
+		},
 
-	// Import.
-	$( '#ctl-import' ).on( 'submit', function( event ) {
-		event.preventDefault();
+		/**
+		 * Import action.
+		 */
+		importAction: function() {
+			ImportExport.selectors.$importForm.on( 'submit', function( event ) {
+				event.preventDefault();
 
-		const formData = new FormData( this );
+				const $form = this;
+				const formData = new FormData( $form );
 
-		$.ajax( {
-			type: 'POST',
-			url: Cyr2LatImportExportObject.ajaxUrl,
-			data: formData,
-			processData: false,
-			contentType: false,
-			success: function( response ) {
-				if ( response.success ) {
-					showSuccess( response.data );
-				} else {
-					showError( response.data );
-				}
-			},
-			error: function( error ) {
-				console.error( 'AJAX request failed:', error );
-			}
-		} );
-	} );
+				$.ajax( {
+					type: 'POST',
+					url: Cyr2LatImportExportObject.ajaxUrl,
+					data: formData,
+					processData: false,
+					contentType: false,
+					success: function( response ) {
+						if ( response.success ) {
+							ImportExport.showSuccess( response.data );
+							$form.reset();
+						} else {
+							ImportExport.showError( response.data );
+						}
+					},
+					error: function( error ) {
+						console.error( 'AJAX request failed:', error );
+					}
+				} );
+			} );
+		},
 
-	function showError( message ) {
-		$errorWrapper.html( message ).addClass( 'active' );
+		/**
+		 * Show error message.
+		 *
+		 * @param message
+		 */
+		showError: function( message ) {
+			ImportExport.selectors.$errorWrapper.html( message ).addClass( 'active' );
 
-		setTimeout( () => {
-			clearMessages();
-		}, 5000 );
-	}
+			setTimeout( function() {
+				ImportExport.clearMessages();
+			}, 5000 );
+		},
 
-	function showSuccess( message ) {
-		$successWrapper.html( message ).addClass( 'active' );
+		/**
+		 * Show success message.
+		 *
+		 * @param message
+		 */
+		showSuccess: function( message ) {
+			ImportExport.selectors.$successWrapper.html( message ).addClass( 'active' );
 
-		setTimeout( () => {
-			clearMessages();
-		}, 5000 );
-	}
+			setTimeout( function() {
+				ImportExport.clearMessages();
+			}, 5000 );
+		},
 
-	function clearMessages() {
-		$errorWrapper.html( '' ).removeClass( 'active' );
-		$successWrapper.html( '' ).removeClass( 'active' );
-	}
+		/**
+		 * Clear messages.
+		 */
+		clearMessages: function() {
+			ImportExport.selectors.$errorWrapper.html( '' ).removeClass( 'active' );
+			ImportExport.selectors.$successWrapper.html( '' ).removeClass( 'active' );
+		}
+	};
+
+	ImportExport.init();
 }( jQuery ) );

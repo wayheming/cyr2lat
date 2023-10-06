@@ -234,7 +234,7 @@ class ImportExport extends PluginSettingsBase {
 		</p>
 		<form id="ctl-import" method="post" enctype="multipart/form-data">
 			<input type="hidden" name="action" value="ctl-import"/>
-			<input type="file" name="ctl-import-file" accept=".json"/>
+			<input type="file" name="ctl-import-file" accept=".json" required />
 			<?php wp_nonce_field( self::IMPORT_NONCE ); ?>
 			<?php submit_button( __( 'Import', 'cyr2lat' ) ); ?>
 		</form>
