@@ -38,24 +38,7 @@
 					contentType: false,
 					success: function( response ) {
 						if ( response.success && response.data.settings ) {
-							const blob = new Blob( [ response.data.settings ], { type: 'application/json' } );
-							const url = URL.createObjectURL( blob );
-
-							let currentDateTime = new Date().toISOString();
-							currentDateTime = currentDateTime.replace( /:/g, '-' ).replace( 'T', '_' ).slice( 0, -5 );
-
-							const $downloadLink = $( '<a>' )
-								.attr( 'href', url )
-								.attr( 'download', 'Settings_' + currentDateTime + '.json' )
-								.css( 'display', 'none' );
-
-							ImportExport.selectors.$body.append( $downloadLink );
-
-							$downloadLink[ 0 ].click();
-							$downloadLink.remove();
-
-							URL.revokeObjectURL( url );
-
+							ImportExport.downloadFile( response.data.settings );
 							ImportExport.showSuccess( response.data.message );
 						} else {
 							ImportExport.showError( response.data );
@@ -66,6 +49,31 @@
 					}
 				} );
 			} );
+		},
+
+		/**
+		 * Download file.
+		 *
+		 * @param $data
+		 */
+		downloadFile: function( $data ) {
+			const blob = new Blob( [ $data ], { type: 'application/json' } );
+			const url = URL.createObjectURL( blob );
+
+			let currentDateTime = new Date().toISOString();
+			currentDateTime = currentDateTime.replace( /:/g, '-' ).replace( 'T', '_' ).slice( 0, -5 );
+
+			const $downloadLink = $( '<a>' )
+				.attr( 'href', url )
+				.attr( 'download', 'Settings_' + currentDateTime + '.json' )
+				.css( 'display', 'none' );
+
+			ImportExport.selectors.$body.append( $downloadLink );
+
+			$downloadLink[ 0 ].click();
+			$downloadLink.remove();
+
+			URL.revokeObjectURL( url );
 		},
 
 		/**
